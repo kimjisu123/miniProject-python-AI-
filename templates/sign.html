@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>출결관리 프로그램</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        #header {
+            text-align: center;
+            background-color: #333;
+            color: #fff;
+            padding: 15px;
+        }
+
+        #container {
+            max-width: 400px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .ui {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 5px;
+        }
+
+        input {
+            padding: 10px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            background-color: #333;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        #webcam-container {
+            margin-top: 20px;
+            width: 100%;
+            height: 250px;
+            border: 5px #333 solid;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #333;
+            color: #fff;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+        }
+
+        #sign {
+            background-color: #333;
+            color: #fff;
+            cursor: pointer;
+            padding: 10px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        a {
+            text-decoration: none;
+            background-color: #333;
+            color: #fff;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="header">
+        <h1>회원가입</h1>
+    </div>
+
+    <div id="container">
+        <div class="ui">
+            <label for="id">이름:</label>
+            <input type="text" id="name" name="id">
+            <label for="password">전화번호:</label>
+            <input type="password" id="phone" name="password">
+            <!-- <button id="login">로그인</button><br> -->
+            <button id="captureBtn">회원가입</button><br>
+            <a id="sign" href="/">로그인 페이지로</a>
+            <!-- <input id="captureBtn" type="submit" value="회원가입"> -->
+        </div>
+
+        <div id="webcam-container">
+            <video id="video" autoplay></video>
+            <canvas id="canvas" style="display: none;"></canvas>
+            <img id="photo" style="display: none;">
+        </div>
+    </div>
+
+
+
+    
+
+    <script>
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function(stream) {
+                var video = document.getElementById('video');
+                video.srcObject = stream;
+            })
+            .catch(function(err) {
+                console.error('웹캠을 사용할 수 없습니다.', err);
+            });
+
+
+        document.getElementById('captureBtn').addEventListener('click', function() {
+            var video = document.getElementById('video');
+            var canvas = document.getElementById('canvas');
+            
+
+            // 캔버스에 현재 비디오 프레임을 복사
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // 캔버스의 데이터를 이미지로 설정
+            var imgData = canvas.toDataURL('image/jpg');
+            
+            // 데이터를 Blob으로 변환
+            var blobData = dataURItoBlob(imgData);
+            
+            // FormData를 사용하여 이미지를 서버에 전송
+            var formData = new FormData();
+        
+            var name = document.getElementById('name').value;
+            var phone = document.getElementById('phone').value;
+            // 멤버 이름
+            formData.append('name', name)
+            // 멤버 전화번호
+            formData.append('phone', phone)
+            // 멤버 이미지
+            formData.append('file', blobData, 'captured_image.png');
+            console.log(formData)
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('성공적으로 회원가입이 되었습니다. ');
+            })
+            .catch(error => {
+                alert('회원가입에 실패하였습니다.');
+            });
+        });
+        
+        // document.getElementById('login').addEventListener('click', function() {
+
+        //     var video = document.getElementById('video');
+        //     var canvas = document.getElementById('canvas');
+
+        //     // 캔버스에 현재 비디오 프레임을 복사
+        //     canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+        //     // 캔버스의 데이터를 이미지로 설정
+        //     var imgData = canvas.toDataURL('image/jpg');
+            
+        //     // 데이터를 Blob으로 변환
+        //     var blobData = dataURItoBlob(imgData);
+            
+        //     // FormData를 사용하여 이미지를 서버에 전송
+        //     var formData = new FormData();
+        
+        //     formData.append('file', blobData, 'captured_image.png');
+
+        //     console.log(formData)
+
+        //     fetch('/login', {
+        //         method: 'POST',
+        //         body: formData
+        //     })
+        //     .then(response => response.json())
+        //     .then(data => {
+        //         alert(data);
+        //     })
+        //     .catch(error => {
+        //         alert('로그인에 실패하셨습니다.');
+        //     });
+        // });
+
+        // Data URI를 Blob으로 변환하는 함수
+        function dataURItoBlob(dataURI) {
+            var byteString = atob(dataURI.split(',')[1]);
+            var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+            var ab = new ArrayBuffer(byteString.length);
+            var ia = new Uint8Array(ab);
+            for (var i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+            }
+            return new Blob([ab], { type: mimeString });
+        }
+    </script>
+</body>
+</html>
