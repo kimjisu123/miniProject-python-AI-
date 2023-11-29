@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -66,7 +67,7 @@
         }
 
         button {
-            margin-top: 15px;
+            /* margin-top: 15px; */
             padding: 10px;
             background-color: #333;
             color: #fff;
@@ -94,9 +95,9 @@
             text-align: center;
             font-size: 13px;
         }
-
     </style>
 </head>
+
 <body>
 
     <div id="header">
@@ -105,12 +106,13 @@
 
     <div id="container">
         <div class="ui">
-            <label for="id">ID:</label>
+            <!-- <label for="id">ID:</label>
             <input type="text" id="name" name="id">
             <label for="password">Passowrd:</label>
-            <input type="password" id="phone" name="password">
-            <button id="login">로그인</button><br>
-            <a id="sign" href="sign">회원가입</a>
+            <input type="password" id="phone" name="password"> -->
+            <button id="login">출근하기</button><br>
+            <button id="leave">퇴근하기</button><br>
+            <a id="sign" href="sign">회원가입 페이지로</a>
 
             <!-- <input id="captureBtn" type="submit" value="회원가입"> -->
         </div>
@@ -124,11 +126,11 @@
 
     <script>
         navigator.mediaDevices.getUserMedia({ video: true })
-            .then(function(stream) {
+            .then(function (stream) {
                 var video = document.getElementById('video');
                 video.srcObject = stream;
             })
-            .catch(function(err) {
+            .catch(function (err) {
                 console.error('웹캠을 사용할 수 없습니다.', err);
             });
 
@@ -136,20 +138,20 @@
         // document.getElementById('captureBtn').addEventListener('click', function() {
         //     var video = document.getElementById('video');
         //     var canvas = document.getElementById('canvas');
-            
+
 
         //     // 캔버스에 현재 비디오 프레임을 복사
         //     canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-            
+
         //     // 캔버스의 데이터를 이미지로 설정
         //     var imgData = canvas.toDataURL('image/jpg');
-            
+
         //     // 데이터를 Blob으로 변환
         //     var blobData = dataURItoBlob(imgData);
-            
+
         //     // FormData를 사용하여 이미지를 서버에 전송
         //     var formData = new FormData();
-        
+
         //     var name = document.getElementById('name').value;
         //     var phone = document.getElementById('phone').value;
         //     // 멤버 이름
@@ -171,24 +173,24 @@
         //         alert('회원가입에 실패하였습니다.');
         //     });
         // });
-        
-        document.getElementById('login').addEventListener('click', function() {
+
+        document.getElementById('login').addEventListener('click', function () {
 
             var video = document.getElementById('video');
             var canvas = document.getElementById('canvas');
 
             // 캔버스에 현재 비디오 프레임을 복사
             canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-            
+
             // 캔버스의 데이터를 이미지로 설정
             var imgData = canvas.toDataURL('image/jpg');
-            
+
             // 데이터를 Blob으로 변환
             var blobData = dataURItoBlob(imgData);
-            
+
             // FormData를 사용하여 이미지를 서버에 전송
             var formData = new FormData();
-        
+
             formData.append('file', blobData, 'captured_image.png');
 
             console.log(formData)
@@ -197,13 +199,48 @@
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
-            .then(data => {
-                alert(data);
+                .then(response => response.json())
+                .then(data => {
+                    alert(data);
+                })
+                .catch(error => {
+                    alert('로그인에 실패하셨습니다.');
+                });
+        });
+
+
+        document.getElementById('leave').addEventListener('click', function () {
+
+            var video = document.getElementById('video');
+            var canvas = document.getElementById('canvas');
+
+            // 캔버스에 현재 비디오 프레임을 복사
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // 캔버스의 데이터를 이미지로 설정
+            var imgData = canvas.toDataURL('image/jpg');
+
+            // 데이터를 Blob으로 변환
+            var blobData = dataURItoBlob(imgData);
+
+            // FormData를 사용하여 이미지를 서버에 전송
+            var formData = new FormData();
+
+            formData.append('file', blobData, 'captured_image.png');
+
+            console.log(formData)
+
+            fetch('/leave', {
+                method: 'POST',
+                body: formData
             })
-            .catch(error => {
-                alert('로그인에 실패하셨습니다.');
-            });
+                .then(response => response.json())
+                .then(data => {
+                    alert(data);
+                })
+                .catch(error => {
+                    alert('퇴근에 실패하셨습니다.');
+                });
         });
 
         // Data URI를 Blob으로 변환하는 함수
@@ -219,4 +256,5 @@
         }
     </script>
 </body>
+
 </html>
